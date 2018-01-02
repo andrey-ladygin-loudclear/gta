@@ -12,6 +12,9 @@ def key_check():
     for key in keyList:
         if wapi.GetAsyncKeyState(ord(key)):
             keys.append(key)
+
+        if wapi.GetAsyncKeyState(17):
+            keys.append('CTRL')
     return keys
 
 #https://www.youtube.com/watch?v=F4y4YOpUcTQ&list=PLQVvvaa0QuDeETZEOy4VdocT7TOjfSA8a&index=9

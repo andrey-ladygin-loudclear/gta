@@ -1,5 +1,6 @@
 from directkeys import ReleaseKey, PressKey, W, A, S, D
 
+
 class GTAPlayer:
     def __init__(self):
         pass
@@ -18,3 +19,6 @@ class GTAPlayer:
 
     def release(self, key):
         ReleaseKey(key)
+
+    def getPressedKeys(self):
+        return []
