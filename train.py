@@ -35,8 +35,8 @@ config.gpu_options.allocator_type = 'BFC'
 imw = 600
 imh = 800
 n_classes = 4
-epochs = 20
-batch_size = 8
+epochs = 1024
+batch_size = 32
 keep_probability = 0.5
 
 tf.reset_default_graph()
@@ -64,7 +64,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
 def print_stats(session, feature_batch, label_batch, cost, accuracy):
     cost = session.run(cost, feed_dict={x: feature_batch, y: label_batch, keep_prob: 1.0})
     # validation_accuracy = session.run(accuracy, feed_dict={x: feature_batch, y: label_batch, keep_prob: 1.0})
-    validation_accuracy = session.run(accuracy, feed_dict={x: X_train[1:10], y: Y_train[1:10], keep_prob: 1.0})
+    validation_accuracy = session.run(accuracy, feed_dict={x: X_train[0:32], y: Y_train[0:32], keep_prob: 1.0})
     print('Cost = {0} - Validation Accuracy = {1}'.format(cost, validation_accuracy))
 
 

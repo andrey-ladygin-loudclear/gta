@@ -56,11 +56,37 @@ def conv_net(x, keep_prob):
 
 
 def create_convolution_layers(X):
+    #Z2 = tf.nn.conv2d(P1, W2, strides = [1,1,1,1], padding = 'SAME')
+
+    nn = create_conv2d(X, 32, strides=[8,8], w_name='W1')
+    nn = tf.nn.relu(nn)
+    nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
+
+    nn = create_conv2d(nn, 64, strides=[4,4], w_name='W2')
+    nn = tf.nn.relu(nn)
+    nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+
+    nn = create_conv2d(nn, 128, strides=[3,3], w_name='W3')
+    nn = tf.nn.relu(nn)
+    nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+
+    nn = create_conv2d(nn, 256, strides=[3,3], w_name='W4')
+    nn = tf.nn.relu(nn)
+    nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+
+    nn = create_conv2d(nn, 512, strides=[3,3], w_name='W5')
+    nn = tf.nn.relu(nn)
+    nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+
+    return nn
+
+def create_convolution_layers_ORIGINAL(X):
+    #Z2 = tf.nn.conv2d(P1, W2, strides = [1,1,1,1], padding = 'SAME')
+
     Z1 = create_conv2d(X, 32, strides=[8,8], w_name='W1')
     A1 = tf.nn.relu(Z1)
     P1 = tf.nn.max_pool(A1, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
 
-    #Z2 = tf.nn.conv2d(P1, W2, strides = [1,1,1,1], padding = 'SAME')
     Z2 = create_conv2d(P1, 64, strides=[4,4], w_name='W2')
     A2 = tf.nn.relu(Z2)
     P2 = tf.nn.max_pool(A2, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
