@@ -1,59 +1,49 @@
 import os
-import h5py
-import numpy as np
-import tables
 from urllib.request import urlretrieve
 from os.path import isfile, isdir
 
 from tqdm import tqdm
 import tensorflow as tf
-import pickle
-import matplotlib.pyplot as plt
-import cnn_udacity_utils as utils
-import cnn_udacity as cnn
-import lab_cifar_different_models as models
+import network.cnn_network as cnn
+from network import models
+
+# for file in os.listdir('data'):
+#     print(os.path.join('data', file))
+#     # f = h5py.File(os.path.join('data', file), 'r')
+#     f = h5py.File(os.path.join('data', file), 'r')
+#
+#     # print('Keys', list(f.keys()))
+#     # print('Values', list(f.values()))
+#
+#     X_train_dataset = f.get('X_train')
+#     Y_train_dataset = f.get('Y_train')
+#
+#     X_train = np.array(X_train_dataset)
+#     Y_train = np.array(Y_train_dataset)
+#     print(file, "X_train shape", X_train.shape, "Y_train shape", Y_train.shape)
+#     print("")
+from network.utils import batch_features_labels, get_train_data
+
+X_train, Y_train = get_train_data()
 
 
-for file in os.listdir('data'):
-    print(os.path.join('data', file))
-    # f = h5py.File(os.path.join('data', file), 'r')
-    f = h5py.File(os.path.join('data', file), 'r')
+print("X_train shape", X_train.shape, "Y_train shape", Y_train.shape)
 
-    # print('Keys', list(f.keys()))
-    # print('Values', list(f.values()))
+config = tf.ConfigProto()
+config.gpu_options.allocator_type = 'BFC'
 
-    X_train_dataset = f.get('X_train')
-    Y_train_dataset = f.get('Y_train')
-
-    X_train = np.array(X_train_dataset)
-    Y_train = np.array(Y_train_dataset)
-    print(file, "X_train shape", X_train.shape, "Y_train shape", Y_train.shape)
-    print("")
-
-
-# dataset = f.get('Y_train')
-# print(np.array(dataset).shape)
-
-
-batch_id = 1
-sample_id = 5
-#utils.display_stats('cifar-10-batches-py', batch_id, sample_id)
-
-#utils.preprocess_and_save_data('cifar-10-batches-py')
-valid_features, valid_labels = pickle.load(open('cifar-10-batches-py/preprocess_dev.p', mode='rb'))
-print(valid_features.shape)
-#https://www.coursera.org/learn/convolutional-neural-networks/lecture/A9lXL/simple-convolutional-network-example
-#https://www.youtube.com/watch?v=mynJtLhhcXk
-
-models.tests()
-
-raise EOFError
+imw = 600
+imh = 800
+n_classes = 4
+epochs = 20
+batch_size = 8
+keep_probability = 0.5
 
 tf.reset_default_graph()
 
 # Inputs
-x = cnn.neural_net_image_input((32, 32, 3))
-y = cnn.neural_net_label_input(10)
+x = cnn.neural_net_image_input((imw, imh, 3))
+y = cnn.neural_net_label_input(n_classes)
 keep_prob = cnn.neural_net_keep_prob_input()
 
 # Model
@@ -70,14 +60,11 @@ optimizer = tf.train.AdamOptimizer().minimize(cost)
 correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
 
-epochs = 100
-batch_size = 64
-keep_probability = 0.5
-
 
 def print_stats(session, feature_batch, label_batch, cost, accuracy):
     cost = session.run(cost, feed_dict={x: feature_batch, y: label_batch, keep_prob: 1.0})
-    validation_accuracy = session.run(accuracy, feed_dict={x: valid_features, y: valid_labels, keep_prob: 1.0})
+    # validation_accuracy = session.run(accuracy, feed_dict={x: feature_batch, y: label_batch, keep_prob: 1.0})
+    validation_accuracy = session.run(accuracy, feed_dict={x: X_train[1:10], y: Y_train[1:10], keep_prob: 1.0})
     print('Cost = {0} - Validation Accuracy = {1}'.format(cost, validation_accuracy))
 
 
@@ -104,19 +91,17 @@ if os.path.isdir(save_model_path):
     raise IsADirectoryError(save_model_path + ' is not exists!!')
 
 print('Training...')
-with tf.Session() as sess:
+
+with tf.Session(config=config) as sess:
     # Initializing the variables
     sess.run(tf.global_variables_initializer())
 
     # Training cycle
     for epoch in range(epochs):
-        # Loop over all batches
-        n_batches = 5
-        for batch_i in range(1, n_batches + 1):
-            for batch_features, batch_labels in utils.load_preprocess_training_batch(batch_i, batch_size):
-                sess.run(optimizer, feed_dict={x: batch_features, y: batch_labels, keep_prob: keep_probability})
-            print('Epoch {:>2}, CIFAR-10 Batch {}:  '.format(epoch + 1, batch_i), end='')
-            print_stats(sess, batch_features, batch_labels, cost, accuracy)
+        for batch_features, batch_labels in batch_features_labels(X_train, Y_train, batch_size):
+            sess.run(optimizer, feed_dict={x: batch_features, y: batch_labels, keep_prob: keep_probability})
+        print('Epoch {:>2}, CIFAR-10 Batch:  '.format(epoch + 1), end='')
+        print_stats(sess, batch_features, batch_labels, cost, accuracy)
 
     # Save Model
     saver = tf.train.Saver()

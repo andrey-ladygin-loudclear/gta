@@ -1,5 +1,8 @@
 import pickle
+import os
+import h5py
 import numpy as np
+import tables
 import matplotlib.pyplot as plt
 
 def normalize(features):
@@ -127,3 +130,70 @@ def _load_label_names():
     Load the label names from file
     """
     return ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+
+
+
+def get_train_data():
+    X_train = []
+    Y_train = []
+
+    f = h5py.File(os.path.join('data', 'training_12-31-2017-0.hdf'), 'r')
+    X_train_dataset = np.array(f.get('X_train'))
+    Y_train_dataset = np.array(f.get('Y_train'))
+    for i in range(200): X_train.append(X_train_dataset[i])
+    for i in range(200): Y_train.append(Y_train_dataset[i])
+
+    f = h5py.File(os.path.join('data', 'training_12-31-2017-1.hdf'), 'r')
+    X_train_dataset = np.array(f.get('X_train'))
+    Y_train_dataset = np.array(f.get('Y_train'))
+    for i in range(200): X_train.append(X_train_dataset[i])
+    for i in range(200): Y_train.append(Y_train_dataset[i])
+
+    f = h5py.File(os.path.join('data', 'training_12-31-2017-2.hdf'), 'r')
+    X_train_dataset = np.array(f.get('X_train'))
+    Y_train_dataset = np.array(f.get('Y_train'))
+    for i in range(200): X_train.append(X_train_dataset[i])
+    for i in range(200): Y_train.append(Y_train_dataset[i])
+
+    f = h5py.File(os.path.join('data', 'training_12-31-2017-3.hdf'), 'r')
+    X_train_dataset = np.array(f.get('X_train'))
+    Y_train_dataset = np.array(f.get('Y_train'))
+    for i in range(200): X_train.append(X_train_dataset[i])
+    for i in range(200): Y_train.append(Y_train_dataset[i])
+
+    f = h5py.File(os.path.join('data', 'training_12-31-2017-4.hdf'), 'r')
+    X_train_dataset = np.array(f.get('X_train'))
+    Y_train_dataset = np.array(f.get('Y_train'))
+    for i in range(200): X_train.append(X_train_dataset[i])
+    for i in range(200): Y_train.append(Y_train_dataset[i])
+
+    f = h5py.File(os.path.join('data', 'training_12-31-2017-5.hdf'), 'r')
+    X_train_dataset = np.array(f.get('X_train'))
+    Y_train_dataset = np.array(f.get('Y_train'))
+    for i in range(200): X_train.append(X_train_dataset[i])
+    for i in range(200): Y_train.append(Y_train_dataset[i])
+
+    f = h5py.File(os.path.join('data', 'training_12-31-2017-6.hdf'), 'r')
+    X_train_dataset = np.array(f.get('X_train'))
+    Y_train_dataset = np.array(f.get('Y_train'))
+    for i in range(200): X_train.append(X_train_dataset[i])
+    for i in range(200): Y_train.append(Y_train_dataset[i])
+
+    f = h5py.File(os.path.join('data', 'training_12-31-2017-7.hdf'), 'r')
+    X_train_dataset = np.array(f.get('X_train'))
+    Y_train_dataset = np.array(f.get('Y_train'))
+    for i in range(200): X_train.append(X_train_dataset[i])
+    for i in range(200): Y_train.append(Y_train_dataset[i])
+
+    f = h5py.File(os.path.join('data', 'training_12-31-2017-8.hdf'), 'r')
+    X_train_dataset = np.array(f.get('X_train'))
+    Y_train_dataset = np.array(f.get('Y_train'))
+    for i in range(200): X_train.append(X_train_dataset[i])
+    for i in range(200): Y_train.append(Y_train_dataset[i])
+
+    X_train = np.array(X_train)
+    Y_train = np.array(Y_train)
+
+    np.random.shuffle(X_train), np.random.shuffle(Y_train)
+
+    return X_train, Y_train

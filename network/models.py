@@ -1,5 +1,5 @@
 import tensorflow as tf
-from cnn_models import create_conv2d
+from network.cnn_network import create_conv2d
 
 def test_net(x, keep_prob):
     layer = create_conv2d(x, 10, strides=[2,2], w_name='W1')

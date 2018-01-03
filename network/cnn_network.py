@@ -39,10 +39,6 @@ def conv_net(x, keep_prob):
     : keep_prob: Placeholder tensor that hold dropout keep probability.
     : return: Tensor that represents logits
     """
-    # TODO: Apply 1, 2, or 3 Convolution and Max Pool layers
-    #    Play around with different number of outputs, kernel size and stride
-    # Function Definition from Above:
-    #    conv2d_maxpool(x_tensor, conv_num_outputs, conv_ksize, conv_strides, pool_ksize, pool_strides)
 
     #layer = conv2d_maxpool(x, 16, (4,4), (1,1), (2,2), (2,2))
     layer = create_convolution_layers(x)
@@ -51,26 +47,25 @@ def conv_net(x, keep_prob):
     #layer = flatten(layer)
     layer = tf.contrib.layers.flatten(layer)
     #layer = fully_conn(layer, 400)
-    layer = tf.contrib.layers.fully_connected(layer, 400)
+    layer = tf.contrib.layers.fully_connected(layer, 200)
     layer = tf.nn.dropout(layer, keep_prob)
 
-    #res = output(layer,10)
-    res = tf.contrib.layers.fully_connected(layer, 10, activation_fn=None)
+    res = tf.contrib.layers.fully_connected(layer, 4, activation_fn=None)
 
     return res
 
 
 def create_convolution_layers(X):
-    Z1 = create_conv2d(X, 10, strides=[2,2], w_name='W1')
+    Z1 = create_conv2d(X, 32, strides=[8,8], w_name='W1')
     A1 = tf.nn.relu(Z1)
     P1 = tf.nn.max_pool(A1, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
 
     #Z2 = tf.nn.conv2d(P1, W2, strides = [1,1,1,1], padding = 'SAME')
-    Z2 = create_conv2d(P1, 20, strides=[2,2], w_name='W2')
+    Z2 = create_conv2d(P1, 64, strides=[4,4], w_name='W2')
     A2 = tf.nn.relu(Z2)
     P2 = tf.nn.max_pool(A2, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
-    Z3 = create_conv2d(P2, 40, strides=[2,2], w_name='W3')
+    Z3 = create_conv2d(P2, 128, strides=[2,2], w_name='W3')
     A3 = tf.nn.relu(Z3)
     P3 = tf.nn.max_pool(A3, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
     return P3
