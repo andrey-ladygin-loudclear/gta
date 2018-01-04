@@ -5,10 +5,18 @@ import tables
 
 #293
 # f = h5py.File('data/training_12-31-2017-2.pkl.hdf', 'r')
-f = h5py.File('data/training_12-31-2017-9.hdf', 'r')
+f = h5py.File('/home/srivoknovskiy/Python/gta/data/training_12-31-2017-0.hdf', 'r')
 
 print(list(f.keys()))
 print(list(f.values()))
+
+
+dataset = f.get('dataset_1')
+print(f.items())
+
+for i in f.get('X_train'):
+    print(i)
+
 dataset = f.get('X_train')
 print(np.array(dataset).shape)
 dataset = f.get('Y_train')
