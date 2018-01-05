@@ -58,6 +58,24 @@ def conv_net(x, keep_prob):
 def create_convolution_layers(X):
     #Z2 = tf.nn.conv2d(P1, W2, strides = [1,1,1,1], padding = 'SAME')
 
+    #alex net
+    # [227x227x3] INPUT
+    # [55x55x96] CONV1: 96 11x11 filters at stride 4, pad 0
+    # [27x27x96] MAX POOL1: 3x3 filters at stride 2
+    # [27x27x96] NORM1: Normalization layer
+    # [27x27x256] CONV2: 256 5x5 filters at stride 1, pad 2
+    # [13x13x256] MAX POOL2: 3x3 filters at stride 2
+    # [13x13x256] NORM2: Normalization layer
+    # [13x13x384] CONV3: 384 3x3 filters at stride 1, pad 1
+    # [13x13x384] CONV4: 384 3x3 filters at stride 1, pad 1
+    # [13x13x256] CONV5: 256 3x3 filters at stride 1, pad 1
+    # [6x6x256] MAX POOL3: 3x3 filters at stride 2
+    # [4096] FC6: 4096 neurons
+    # [4096] FC7: 4096 neurons
+    # [1000] FC8: 1000 neurons (class scores)
+
+    #252 x 189
+    #nn = add_conv_relu_maxPool()
     nn = create_conv2d(X, 32, strides=[8,8], w_name='W1')
     nn = tf.nn.relu(nn)
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
@@ -79,6 +97,14 @@ def create_convolution_layers(X):
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
     return nn
+
+def add_conv_relu_maxPool(cnn, filters, strides, name):
+    # nn = create_conv2d(nn, 512, strides=[3,3], w_name='W5')
+    # nn = tf.nn.relu(nn)
+    # nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+    cnn = create_conv2d(cnn, filters, strides=strides, w_name=name)
+    cnn = tf.nn.relu(cnn)
+    return tf.nn.max_pool(cnn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
 def create_convolution_layers_ORIGINAL(X):
     #Z2 = tf.nn.conv2d(P1, W2, strides = [1,1,1,1], padding = 'SAME')

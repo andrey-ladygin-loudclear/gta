@@ -147,9 +147,10 @@ def get_train_data():
         # plt.imshow(image)
         # plt.show()
         image = Image.fromarray(real_image, 'RGB')
-        image = image.resize((20,15))
-        # plt.imshow(image)
-        # plt.show()
+        image = image.resize((252,189))
+        plt.imshow(image)
+        plt.show()
+        raise EOFError
         real_image = np.array(image)
 
         data.append(np.array(real_image) / 255)

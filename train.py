@@ -44,8 +44,8 @@ Y_train = np.array(Y_train)
 config = tf.ConfigProto()
 config.gpu_options.allocator_type = 'BFC'
 
-imw = 15#600
-imh = 20#800
+imw = 15#600 #189
+imh = 20#800 #252
 n_classes = 4
 epochs = 100
 batch_size = 32
