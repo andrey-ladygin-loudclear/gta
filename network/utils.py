@@ -136,19 +136,25 @@ def _load_label_names():
 
 from skimage.transform import resize
 def get_train_data():
-    imgs = os.listdir('imgs')[:2]
+    imgs = os.listdir('imgs')[:8000]
     #np.random.shuffle(X_train)
     data = []
 
     for img in imgs:
         real_image = ndimage.imread('imgs/' + img)
-        print(real_image.shape, resize(real_image,(300,400)).shape)
-        image = Image.fromarray(resize(real_image,(300,400)), 'RGB')
-        plt.imshow(image)
-        plt.show()
+        # print(real_image.shape, resize(real_image,(300,400)).shape)
+        # image = Image.fromarray(resize(real_image,(300,400)), 'RGB')
+        # plt.imshow(image)
+        # plt.show()
+        image = Image.fromarray(real_image, 'RGB')
+        image = image.resize((20,15))
+        # plt.imshow(image)
+        # plt.show()
+        real_image = np.array(image)
+
         data.append(np.array(real_image) / 255)
 
-    raise EOFError
+    # raise EOFError
     return np.array(data)
 
 def get_train_data2():

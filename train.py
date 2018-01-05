@@ -32,6 +32,7 @@ from network.utils import batch_features_labels, get_train_data
 
 # X_train, Y_train = get_train_data()
 X_train = get_train_data()
+print("X_train shape", X_train.shape)
 # print("X_train shape", X_train.shape, "Y_train shape", Y_train.shape)
 Y_train = []
 
@@ -43,10 +44,10 @@ Y_train = np.array(Y_train)
 config = tf.ConfigProto()
 config.gpu_options.allocator_type = 'BFC'
 
-imw = 600
-imh = 800
+imw = 15#600
+imh = 20#800
 n_classes = 4
-epochs = 20
+epochs = 100
 batch_size = 32
 keep_probability = 0.5
 
