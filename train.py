@@ -1,10 +1,13 @@
 import os
+from random import randint
 from urllib.request import urlretrieve
 from os.path import isfile, isdir
 
 from tqdm import tqdm
 import tensorflow as tf
+import numpy as np
 import network.cnn_network as cnn
+from network import YOLO
 from network import models
 
 # for file in os.listdir('data'):
@@ -24,10 +27,18 @@ from network import models
 #     print("")
 from network.utils import batch_features_labels, get_train_data
 
-X_train, Y_train = get_train_data()
+# YOLO.predict()
+# raise EOFError
 
+# X_train, Y_train = get_train_data()
+X_train = get_train_data()
+# print("X_train shape", X_train.shape, "Y_train shape", Y_train.shape)
+Y_train = []
 
-print("X_train shape", X_train.shape, "Y_train shape", Y_train.shape)
+for i in range(len(X_train)):
+    Y_train.append([1,randint(0,1),randint(0,1),0])
+Y_train = np.array(Y_train)
+
 
 config = tf.ConfigProto()
 config.gpu_options.allocator_type = 'BFC'
@@ -35,7 +46,7 @@ config.gpu_options.allocator_type = 'BFC'
 imw = 600
 imh = 800
 n_classes = 4
-epochs = 1024
+epochs = 20
 batch_size = 32
 keep_probability = 0.5
 
@@ -85,10 +96,10 @@ def print_stats(session, feature_batch, label_batch, cost, accuracy):
 
 
 
-save_model_path = './weights/gta'
-
-if os.path.isdir(save_model_path):
-    raise IsADirectoryError(save_model_path + ' is not exists!!')
+save_model_path = 'weights/gta'
+#
+# if os.path.isdir(save_model_path):
+#     raise IsADirectoryError(save_model_path + ' is not exists!!')
 
 print('Training...')
 
@@ -102,6 +113,8 @@ with tf.Session(config=config) as sess:
             sess.run(optimizer, feed_dict={x: batch_features, y: batch_labels, keep_prob: keep_probability})
         print('Epoch {:>2}, CIFAR-10 Batch:  '.format(epoch + 1), end='')
         print_stats(sess, batch_features, batch_labels, cost, accuracy)
+
+    #print(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='my_scope'))
 
     # Save Model
     saver = tf.train.Saver()

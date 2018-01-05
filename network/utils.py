@@ -4,6 +4,9 @@ import h5py
 import numpy as np
 import tables
 import matplotlib.pyplot as plt
+from scipy import ndimage
+from PIL import Image
+
 
 def normalize(features):
     return features/255.
@@ -131,9 +134,24 @@ def _load_label_names():
     """
     return ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
-
-
+from skimage.transform import resize
 def get_train_data():
+    imgs = os.listdir('imgs')[:2]
+    #np.random.shuffle(X_train)
+    data = []
+
+    for img in imgs:
+        real_image = ndimage.imread('imgs/' + img)
+        print(real_image.shape, resize(real_image,(300,400)).shape)
+        image = Image.fromarray(resize(real_image,(300,400)), 'RGB')
+        plt.imshow(image)
+        plt.show()
+        data.append(np.array(real_image) / 255)
+
+    raise EOFError
+    return np.array(data)
+
+def get_train_data2():
     X_train = []
     Y_train = []
     n = 300
