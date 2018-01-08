@@ -24,6 +24,8 @@ Y_train = []
 def grab():
     global start
     last_time = time.time()
+    number_of_image = 0
+    time_sum = 0
 
     while(True):
         check_commands()
@@ -31,20 +33,31 @@ def grab():
         if(start):
             screen = np.array(ImageGrab.grab(bbox=(0, 40, 800, 640)))
             image = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
-            #cv2.imshow('window', image)
-            #cv2.imwrite("data/imgs/test"+str(g)+".jpg", screen)
-            print('Loop took {}, shape is {}'.format(time.time() - last_time, image.shape))
-            last_time = time.time()
+            cv2.imshow('window', image)
+
+            if number_of_image % 100 == 0:
+                mean_time_diff = time_sum / 100
+                time_sum = 0
+                print('Loop took {}, shape is {}'.format(mean_time_diff, image.shape))
+            time_sum += time.time() - last_time
+
+            folder = number_of_image // 1000
+            if not os.path.isdir("imgs/"+str(folder)):
+                os.makedirs("imgs/"+str(folder))
+            cv2.imwrite("imgs/"+str(folder)+"/"+str(number_of_image)+".jpg", image)
+            number_of_image += 1
 
             addToData(image)
 
-            if len(X_train) == 1000:
+            if len(Y_train) == 1000:
+                print('SAVE', len(Y_train), number_of_image)
                 saveTrainingData()
 
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
                 break
 
+            last_time = time.time()
 
 isFirstCheckCommands = True
 def check_commands():
@@ -67,22 +80,29 @@ def check_commands():
             Y_train = []
 
 
+n = 0
 def addToData(image):
-    y = [0, 0, 0, 0]
+    global Y_train, n
+    y = [1, 0, 0]
     pressed_keys = key_check()
 
-    if 'A' in pressed_keys: y[0] = 1
-    if 'W' in pressed_keys: y[1] = 1
-    if 'D' in pressed_keys: y[2] = 1
-    if 'S' in pressed_keys: y[3] = 1
+    # if 'A' in pressed_keys: y[0] = 1
+    # if 'W' in pressed_keys: y[1] = 1
+    # if 'D' in pressed_keys: y[2] = 1
+    # if 'S' in pressed_keys: y[3] = 1
+
+    if 'A' in pressed_keys: y = [0, 1, 0]
+    if 'S' in pressed_keys: y = [0, 0, 1]
 
     #image = image / 255
     # training_data.append({
     #     'x': image,
     #     'y': y
     # })
-    X_train.append(image)
+    #X_train.append(image)
     Y_train.append(y)
+
+    # if len(Y_train) >= 1000:
     #training_data.append(image)
 
 def getFileName(date, iteration):
@@ -91,6 +111,13 @@ def getFileName(date, iteration):
 i = 0
 def saveTrainingData():
     global X_train, Y_train, i
+    if len(Y_train) > 0:
+        print('SaveTrainingData: ', len(Y_train))
+        np.save('labels/'+str(i) + '-labels', Y_train)
+        Y_train = []
+        i += 1
+    return
+
     date = datetime.datetime.now()
     date = date.strftime('%m-%d-%Y')
     file_name = getFileName(date, i)

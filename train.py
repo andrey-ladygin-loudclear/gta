@@ -7,7 +7,7 @@ from tqdm import tqdm
 import tensorflow as tf
 import numpy as np
 import network.cnn_network as cnn
-from network import YOLO
+#from network import YOLO
 from network import models
 
 # for file in os.listdir('data'):
@@ -30,24 +30,20 @@ from network.utils import batch_features_labels, get_train_data
 # YOLO.predict()
 # raise EOFError
 
-# X_train, Y_train = get_train_data()
-X_train = get_train_data()
-print("X_train shape", X_train.shape)
-# print("X_train shape", X_train.shape, "Y_train shape", Y_train.shape)
-Y_train = []
+X_train = np.load('data/features.npy')
+Y_train = np.load('data/labels.npy')
+print(X_train.shape)
+print(Y_train.shape)
 
-for i in range(len(X_train)):
-    Y_train.append([1,randint(0,1),randint(0,1),0])
-Y_train = np.array(Y_train)
-
+# raise ValueError
 
 config = tf.ConfigProto()
 config.gpu_options.allocator_type = 'BFC'
 
-imw = 15#600 #189
-imh = 20#800 #252
-n_classes = 4
-epochs = 100
+imw = 189#600 #189
+imh = 252#800 #252
+n_classes = 3
+epochs = 25
 batch_size = 32
 keep_probability = 0.5
 
@@ -75,9 +71,11 @@ accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
 
 def print_stats(session, feature_batch, label_batch, cost, accuracy):
     cost = session.run(cost, feed_dict={x: feature_batch, y: label_batch, keep_prob: 1.0})
-    # validation_accuracy = session.run(accuracy, feed_dict={x: feature_batch, y: label_batch, keep_prob: 1.0})
-    validation_accuracy = session.run(accuracy, feed_dict={x: X_train[0:32], y: Y_train[0:32], keep_prob: 1.0})
+    # validation_accuracy = session.run(accuracy, feed_dict={x: X_train, y: Y_train, keep_prob: 1.0})
+    validation_accuracy = session.run(accuracy, feed_dict={x: feature_batch, y: label_batch, keep_prob: 1.0})
+    valid_logits = session.run(logits, feed_dict={x: feature_batch, y: label_batch, keep_prob: 1.0})
     print('Cost = {0} - Validation Accuracy = {1}'.format(cost, validation_accuracy))
+    print(valid_logits, valid_logits.shape)
 
 
 # print('Checking the Training on a Single Batch...')
