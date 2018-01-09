@@ -8,16 +8,9 @@ def print_epoch_stats(epoch_i, sess, last_features, last_labels):
     """
     Print cost and validation accuracy of an epoch
     """
-    current_cost = sess.run(
-        cost,
-        feed_dict={features: last_features, labels: last_labels})
-    valid_accuracy = sess.run(
-        accuracy,
-        feed_dict={features: valid_features, labels: valid_labels})
-    print('Epoch: {:<4} - Cost: {:<8.3} Valid Accuracy: {:<5.3}'.format(
-        epoch_i,
-        current_cost,
-        valid_accuracy))
+    current_cost = sess.run(cost, feed_dict={features: last_features, labels: last_labels})
+    valid_accuracy = sess.run(accuracy, feed_dict={features: valid_features, labels: valid_labels})
+    print('Epoch: {:<4} - Cost: {:<8.3} Valid Accuracy: {:<5.3}'.format(epoch_i,current_cost,valid_accuracy))
 
 n_input = 784  # MNIST data input (img shape: 28*28)
 n_classes = 10  # MNIST total classes (0-9 digits)

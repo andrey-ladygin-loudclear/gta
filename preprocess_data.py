@@ -34,6 +34,20 @@ def preprocess_image(image_path):
 def preprocess_label(np_lables):
     return np_lables
 
+def filter_data(images, labels):
+    nx = []
+    ny = []
+
+    print('old: ', images.shape)
+    print('old: ', labels.shape)
+
+    for x, y in zip(images, labels):
+        if y[0] == 0:
+            nx.append(x)
+            ny.append([y[1], y[2]])
+
+    return np.array(nx), np.array(ny)
+
 def one_hot_encode(x, m):
     n = len(x)
     b = np.zeros((n, m))
@@ -62,6 +76,10 @@ np.random.shuffle(s)
 
 images = images[s]
 labels = labels[s]
+
+print('labels sum: ', sum(labels))
+
+# images, labels = filter_data(images, labels)
 
 print('save images: ', images.shape)
 print('save labels: ', labels.shape)

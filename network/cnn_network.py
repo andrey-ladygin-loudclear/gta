@@ -50,7 +50,7 @@ def conv_net(x, keep_prob):
     layer = tf.contrib.layers.fully_connected(layer, 200)
     layer = tf.nn.dropout(layer, keep_prob)
 
-    res = tf.contrib.layers.fully_connected(layer, 3, activation_fn=None)
+    res = tf.contrib.layers.fully_connected(layer, 2, activation_fn=None)
 
     return res
 
@@ -122,12 +122,18 @@ def create_convolution_layers_ORIGINAL(X):
     P3 = tf.nn.max_pool(A3, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
     return P3
 
+def get_weights_shape(X, conv_num_outputs, strides):
+    depth = X.get_shape().as_list()[-1]
+    w_size = [strides[0], strides[1], depth, conv_num_outputs]
+    c_strides = [1, strides[0], strides[1], 1]
+    return w_size, c_strides
+
 def create_conv2d(X, conv_num_outputs, strides, w_name):
     depth = X.get_shape().as_list()[-1]
     w_size = [strides[0], strides[1], depth, conv_num_outputs]
     c_strides = [1, strides[0], strides[1], 1]
     W = tf.get_variable(w_name, w_size, initializer=tf.contrib.layers.xavier_initializer(seed=0))
-    Z = tf.nn.conv2d(X, W, strides=c_strides, padding='SAME')
+    Z = tf.nn.conv2d(X, W, strides=c_strides, padding='SAME', name=w_name+'_conv2d')
     return Z
 
 def conv2d_maxpool(x_tensor, conv_num_outputs, conv_ksize, conv_strides, pool_ksize, pool_strides):
