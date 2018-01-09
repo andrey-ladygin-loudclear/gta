@@ -42,9 +42,12 @@ def filter_data(images, labels):
     print('old: ', labels.shape)
 
     for x, y in zip(images, labels):
-        if y[0] == 0:
+        if y[0] != 0:
             nx.append(x)
-            ny.append([y[1], y[2]])
+            ny.append([1, 0])
+        if y[2] != 0:
+            nx.append(x)
+            ny.append([0, 1])
 
     return np.array(nx), np.array(ny)
 
@@ -79,10 +82,10 @@ labels = labels[s]
 
 print('labels sum: ', sum(labels))
 
-# images, labels = filter_data(images, labels)
+images, labels = filter_data(images, labels)
 
 print('save images: ', images.shape)
 print('save labels: ', labels.shape)
 
-#np.save('data/features', images)
-#np.save('data/labels', labels)
+np.save('data/features', images)
+np.save('data/labels', labels)

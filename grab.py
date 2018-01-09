@@ -41,17 +41,7 @@ def grab():
                 print('Loop took {}, shape is {}'.format(mean_time_diff, image.shape))
             time_sum += time.time() - last_time
 
-            folder = number_of_image // 1000
-            if not os.path.isdir("imgs/"+str(folder)):
-                os.makedirs("imgs/"+str(folder))
-            cv2.imwrite("imgs/"+str(folder)+"/"+str(number_of_image)+".jpg", image)
-            number_of_image += 1
-
             addToData(image)
-
-            if len(Y_train) == 1000:
-                print('SAVE', len(Y_train), number_of_image)
-                saveTrainingData()
 
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
@@ -83,27 +73,33 @@ def check_commands():
 n = 0
 def addToData(image):
     global Y_train, n
-    y = [1, 0, 0]
+    y = [0, 0, 0, 0]
     pressed_keys = key_check()
 
-    # if 'A' in pressed_keys: y[0] = 1
-    # if 'W' in pressed_keys: y[1] = 1
-    # if 'D' in pressed_keys: y[2] = 1
-    # if 'S' in pressed_keys: y[3] = 1
+    if 'A' in pressed_keys:
+        print('Pressed A')
+        y[0] = 1
+    if 'W' in pressed_keys: y[1] = 1
+    if 'D' in pressed_keys:
+        print('Pressed D')
+        y[2] = 1
+    if 'S' in pressed_keys: y[3] = 1
 
-    if 'A' in pressed_keys: y = [0, 1, 0]
-    if 'S' in pressed_keys: y = [0, 0, 1]
-
-    #image = image / 255
-    # training_data.append({
-    #     'x': image,
-    #     'y': y
-    # })
     #X_train.append(image)
     Y_train.append(y)
 
-    # if len(Y_train) >= 1000:
-    #training_data.append(image)
+    folder = n // 1000
+
+    if not os.path.isdir("imgs/"+str(folder)):
+        os.makedirs("imgs/"+str(folder))
+
+    cv2.imwrite("imgs/"+str(folder)+"/"+str(n)+".jpg", image)
+
+    if len(Y_train) == 1000:
+        print('SAVE', len(Y_train), n)
+        saveTrainingData()
+
+    n += 1
 
 def getFileName(date, iteration):
     return 'data/training_{}-{}.hdf'.format(date, iteration)
