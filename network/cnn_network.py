@@ -47,7 +47,9 @@ def conv_net(x, keep_prob):
     #layer = flatten(layer)
     layer = tf.contrib.layers.flatten(layer)
     #layer = fully_conn(layer, 400)
-    layer = tf.contrib.layers.fully_connected(layer, 200)
+    layer = tf.contrib.layers.fully_connected(layer, 2000)
+    layer = tf.nn.dropout(layer, keep_prob)
+    layer = tf.contrib.layers.fully_connected(layer, 1000)
     layer = tf.nn.dropout(layer, keep_prob)
 
     res = tf.contrib.layers.fully_connected(layer, 2, activation_fn=None)
@@ -76,19 +78,19 @@ def create_convolution_layers(X):
 
     #252 x 189
     #nn = add_conv_relu_maxPool()
-    nn = create_conv2d(X, 32, strides=[8,8], w_name='W1')
+    nn = create_conv2d(X, 128, strides=[8,8], w_name='W1')
     nn = tf.nn.relu(nn)
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
 
-    nn = create_conv2d(nn, 64, strides=[4,4], w_name='W2')
+    nn = create_conv2d(nn, 256, strides=[4,4], w_name='W2')
     nn = tf.nn.relu(nn)
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
-    nn = create_conv2d(nn, 128, strides=[3,3], w_name='W3')
+    nn = create_conv2d(nn, 256, strides=[3,3], w_name='W3')
     nn = tf.nn.relu(nn)
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
-    nn = create_conv2d(nn, 256, strides=[3,3], w_name='W4')
+    nn = create_conv2d(nn, 512, strides=[3,3], w_name='W4')
     nn = tf.nn.relu(nn)
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 

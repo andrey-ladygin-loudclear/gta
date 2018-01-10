@@ -33,12 +33,11 @@ from network.utils import batch_features_labels, get_train_data
 X_train = np.load('data/features.npy')
 Y_train = np.load('data/labels.npy')
 
-
 print(X_train.shape)
 print(Y_train.shape)
 # print(Y_train)
 
-raise ValueError
+# raise ValueError
 
 config = tf.ConfigProto()
 config.gpu_options.allocator_type = 'BFC'
@@ -46,11 +45,13 @@ config.gpu_options.allocator_type = 'BFC'
 imw = 189#600 #189
 imh = 252#800 #252
 n_classes = 2
-epochs = 25
+epochs = 58
 batch_size = 32
 keep_probability = 0.5
 
 tf.reset_default_graph()
+
+#Epoch 25, CIFAR-10 Batch:  Cost = 0.42823734879493713 - Validation Accuracy = 0.7324798107147217
 
 # Inputs
 x = cnn.neural_net_image_input((imw, imh, 3))
