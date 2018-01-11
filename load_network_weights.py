@@ -2,12 +2,12 @@ import tensorflow as tf
 import numpy as np
 import network.cnn_network as cnn
 
-X_train = np.load('data/features_554.npy')
-Y_train = np.load('data/labels_554.npy')
+X_train = np.load('data/features.npy')
+Y_train = np.load('data/labels.npy')
 
 imw = 189
 imh = 252
-n_classes = 2
+n_classes = 3
 epochs = 25
 batch_size = 32
 keep_probability = 0.5
@@ -47,14 +47,16 @@ session_conf = tf.ConfigProto(
     log_device_placement=False
 )
 sess = tf.Session(config=session_conf)
-saver.restore(sess, "gta5_weights_v1/gta")
+saver.restore(sess, "weights/gta_one_road")
 
-print(X_train[0])
+print(sum(Y_train))
+
 
 def predict(image):
     soft = tf.nn.softmax(logits)
     prediction = sess.run(soft, {x:image, keep_prob: 1.0})
-    print('prediction', prediction[0], prediction[0] > 0.5)
+    #print('prediction', prediction[0], prediction[0] > 0.5)
+    print(prediction[0] > 0.5)
     return prediction[0] > 0.5
 
 def getSession():

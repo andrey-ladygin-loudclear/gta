@@ -62,9 +62,9 @@ def get_prediction(image):
     #print(image.shape)
     prediction = predict([image])
 
-    player.forward()
-    time.sleep(0.5)
-    player.releaseForward()
+    #player.forward()
+    #time.sleep(0.5)
+    #player.releaseForward()
 
     if prediction[0]:
         player.left()

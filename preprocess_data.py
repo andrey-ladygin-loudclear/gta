@@ -28,7 +28,7 @@ def preprocess_image(image_path):
     image = image.resize((252,189))
     # plt.imshow(image)
     # plt.show()
-    real_image = np.array(image) / 255
+    real_image = np.array(image)
     return real_image
 
 def preprocess_label(np_lables):
@@ -44,10 +44,13 @@ def filter_data(images, labels):
     for x, y in zip(images, labels):
         if y[0] != 0:
             nx.append(x)
-            ny.append([1, 0])
+            ny.append([1, 0, 0])
         if y[2] != 0:
             nx.append(x)
-            ny.append([0, 1])
+            ny.append([0, 1, 0])
+        if y[0] == 0 and y[2] == 0:
+            nx.append(x)
+            ny.append([0, 0, 1])
 
     return np.array(nx), np.array(ny)
 
@@ -62,14 +65,17 @@ def one_hot_encode(x, m):
 #     b[np.arange(n), x] = 1
 #     return b
 
+print('Process Images')
 for dir in img_dir:
     for image in os.listdir('imgs/' + dir):
         images.append(preprocess_image('imgs/' + dir + '/' + image))
 
+print("Process Labels")
 for np_lables in lab_dir:
     numpy_data = np.load('labels/' + np_lables)
     for data in numpy_data:
         labels.append(data)
+
 
 images = np.array(images)
 labels = np.array(labels)

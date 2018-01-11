@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 import time
 import os
-
+import pyautogui
 import zlib
 from PIL import ImageGrab
 from getkeys import key_check
@@ -20,11 +20,11 @@ start = False
 X_train = []
 Y_train = []
 
+last_saved_image = (max([int(folder) for folder in os.listdir('imgs')]) + 1) * 1000
 
 def grab():
-    global start
+    global start, last_saved_image
     last_time = time.time()
-    number_of_image = 0
     time_sum = 0
 
     while(True):
@@ -35,10 +35,10 @@ def grab():
             image = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
             cv2.imshow('window', image)
 
-            if number_of_image % 100 == 0:
+            if last_saved_image % 250 == 0:
                 mean_time_diff = time_sum / 100
                 time_sum = 0
-                print('Loop took {}, shape is {}'.format(mean_time_diff, image.shape))
+                print('Loop took {}, Len is {}, shape is {}'.format(mean_time_diff, len(Y_train), image.shape))
             time_sum += time.time() - last_time
 
             addToData(image)
@@ -61,8 +61,8 @@ def check_commands():
     if 'CTRL' in pressed_keys:
         if 'T' in pressed_keys:
             start = True
-        if 'S' in pressed_keys:
-            saveTrainingData()
+        # if 'S' in pressed_keys:
+        #     saveTrainingData()
         if 'E' in pressed_keys:
             start = False
         if 'C' in pressed_keys:
@@ -70,48 +70,43 @@ def check_commands():
             Y_train = []
 
 
-n = 0
 def addToData(image):
-    global Y_train, n
+    global Y_train, last_saved_image
     y = [0, 0, 0, 0]
     pressed_keys = key_check()
 
-    if 'A' in pressed_keys:
-        print('Pressed A')
-        y[0] = 1
+    if 'A' in pressed_keys: y[0] = 1
     if 'W' in pressed_keys: y[1] = 1
-    if 'D' in pressed_keys:
-        print('Pressed D')
-        y[2] = 1
+    if 'D' in pressed_keys: y[2] = 1
     if 'S' in pressed_keys: y[3] = 1
 
     #X_train.append(image)
     Y_train.append(y)
 
-    folder = n // 1000
+    folder = last_saved_image // 1000
 
     if not os.path.isdir("imgs/"+str(folder)):
         os.makedirs("imgs/"+str(folder))
 
-    cv2.imwrite("imgs/"+str(folder)+"/"+str(n)+".jpg", image)
+    cv2.imwrite("imgs/"+str(folder)+"/"+str(last_saved_image)+".jpg", image)
 
     if len(Y_train) == 1000:
-        print('SAVE', len(Y_train), n)
+        print('SAVE', len(Y_train), last_saved_image)
         saveTrainingData()
 
-    n += 1
+    last_saved_image += 1
 
 def getFileName(date, iteration):
     return 'data/training_{}-{}.hdf'.format(date, iteration)
 
-i = 0
 def saveTrainingData():
-    global X_train, Y_train, i
+    global X_train, Y_train
+    name = str(last_saved_image // 1000) + "-labels-" + str(len(Y_train))
+
     if len(Y_train) > 0:
         print('SaveTrainingData: ', len(Y_train))
-        np.save('labels/'+str(i) + '-labels', Y_train)
+        np.save('labels/'+name, Y_train)
         Y_train = []
-        i += 1
     return
 
     date = datetime.datetime.now()
