@@ -1,5 +1,7 @@
 import tensorflow as tf
 
+net_params = {}
+
 def neural_net_image_input(image_shape):
     """
     Return a Tensor for a batch of image input
@@ -79,23 +81,23 @@ def create_convolution_layers(X):
     #252 x 189
     #nn = add_conv_relu_maxPool()
     nn = create_conv2d(X, 128, strides=[8,8], w_name='W1')
-    nn = tf.nn.relu(nn)
+    nn = tf.nn.relu(nn, name='W1_activated')
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
 
     nn = create_conv2d(nn, 256, strides=[4,4], w_name='W2')
-    nn = tf.nn.relu(nn)
+    nn = tf.nn.relu(nn, name='W2_activated')
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
     nn = create_conv2d(nn, 256, strides=[3,3], w_name='W3')
-    nn = tf.nn.relu(nn)
+    nn = tf.nn.relu(nn, name='W3_activated')
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
     nn = create_conv2d(nn, 512, strides=[3,3], w_name='W4')
-    nn = tf.nn.relu(nn)
+    nn = tf.nn.relu(nn, name='W4_activated')
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
     nn = create_conv2d(nn, 512, strides=[3,3], w_name='W5')
-    nn = tf.nn.relu(nn)
+    nn = tf.nn.relu(nn, name='W5_activated')
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
     return nn

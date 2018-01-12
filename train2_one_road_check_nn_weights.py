@@ -7,70 +7,9 @@ from network.utils import batch_features_labels
 X_train = np.load('data/features.npy')
 Y_train = np.load('data/labels.npy')
 
-#print('sum labels', sum(Y_train))
-# [ 1363  1305 13463]
-
-# Epoch 1, Cost = 0.431162029504776 - Train Accuracy = 0.7997448979591837, Test Accuracy = 0.8299999833106995
-# Epoch 2, Cost = 0.42498403787612915 - Train Accuracy = 0.7997448979591837, Test Accuracy = 0.8299999833106995
-# Epoch 3, Cost = 0.42137521505355835 - Train Accuracy = 0.7997448979591837, Test Accuracy = 0.8299999833106995
-# Epoch 4, Cost = 0.4272606074810028 - Train Accuracy = 0.7997448979591837, Test Accuracy = 0.8299999833106995
-# Epoch 5, Cost = 0.42544811964035034 - Train Accuracy = 0.7997448979591837, Test Accuracy = 0.8299999833106995
-
-# Epoch 1, Cost = 0.41652974486351013 - Train Accuracy = 0.7997448979591837, Test Accuracy = 0.8299999833106995
-# Epoch 2, Cost = 0.42681559920310974 - Train Accuracy = 0.7997448979591837, Test Accuracy = 0.8299999833106995
-# Epoch 2, Cost = 0.42775529623031616 - Train Accuracy = 0.7997448979591837, Test Accuracy = 0.8299999833106995
-
-nx = []
-ny = []
-c = 0
-for i in range(len(Y_train)):
-    if Y_train[i][0] == 1:
-        nx.append(X_train[i])
-        ny.append(Y_train[i])
-    if Y_train[i][1] == 1:
-        nx.append(X_train[i])
-        ny.append(Y_train[i])
-    if Y_train[i][2] == 1 and c < 1350:
-        c += 1
-        nx.append(X_train[i])
-        ny.append(Y_train[i])
-
-X_train = np.array(nx)
-Y_train = np.array(ny)
-
-s = np.arange(X_train.shape[0])
-np.random.shuffle(s)
-
-X_train = X_train[s]
-Y_train = Y_train[s]
-
-print(sum(Y_train))
-
-# SHOW IAMGES WITH LABELS
-# import matplotlib.pyplot as plt
-# for im, y in zip(X_train, Y_train):
-#     print(y)
-#     plt.imshow(im)
-#     plt.show()
-#
-# raise EOFError
-
-
-
 print('Total shape X', X_train.shape)
 print('Total shape Y', Y_train.shape)
-# raise EOFError
-# X_test = X_train[0:2000]
-# Y_test = Y_train[0:2000]
-#
-# X_train = X_train[2000:]
-# Y_train = Y_train[2000:]
-#
-# print('X_train shape', X_train.shape)
-# print('Y_train shape', Y_train.shape)
-#
-# print('X_test shape', X_test.shape)
-# print('Y_test shape', Y_test.shape)
+
 
 config = tf.ConfigProto()
 config.gpu_options.allocator_type = 'BFC'
@@ -78,8 +17,8 @@ config.gpu_options.allocator_type = 'BFC'
 imw = 189
 imh = 252
 n_classes = 3
-epochs = 2
-batch_size = 64
+epochs = 40
+batch_size = 256
 keep_probability = 0.5
 
 tf.reset_default_graph()
@@ -89,8 +28,56 @@ x = cnn.neural_net_image_input((imw, imh, 3))
 y = cnn.neural_net_label_input(n_classes)
 keep_prob = cnn.neural_net_keep_prob_input()
 
+'''
+TensorFlow provides graph collections that group the variables.
+To access the variables that were trained you would call
+tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+or to get all variables (including some for statistics) use tf.get_collection(tf.GraphKeys.VARIABLES)
+or its shorthand tf.all_variables()
+'''
+
 # Model
-logits = cnn.conv_net(x, keep_prob)
+#nn = create_conv2d(X, 128, strides=[8,8], w_name='W1')
+w_size, c_strides = cnn.get_weights_shape(x, 32, [8, 8])
+W1 = tf.get_variable('W1', w_size, initializer=tf.contrib.layers.xavier_initializer(seed=0))
+Z1 = tf.nn.conv2d(x, W1, strides=c_strides, padding='SAME', name='W1_conv2d')
+layer = tf.nn.relu(Z1)
+max_pool1 = tf.nn.max_pool(layer, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
+
+
+
+#nn = create_conv2d(nn, 256, strides=[4,4], w_name='W2')
+w_size, c_strides = cnn.get_weights_shape(max_pool1, 256, [4, 4])
+W2 = tf.get_variable('W2', w_size, initializer=tf.contrib.layers.xavier_initializer(seed=0))
+Z2 = tf.nn.conv2d(max_pool1, W2, strides=c_strides, padding='SAME', name='W1_conv2d')
+layer = tf.nn.relu(Z2)
+max_pool2 = tf.nn.max_pool(layer, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+
+# nn = create_conv2d(nn, 256, strides=[3,3], w_name='W3')
+w_size, c_strides = cnn.get_weights_shape(max_pool2, 256, [3, 3])
+W3 = tf.get_variable('W3', w_size, initializer=tf.contrib.layers.xavier_initializer(seed=0))
+Z3 = tf.nn.conv2d(max_pool2, W3, strides=c_strides, padding='SAME', name='W1_conv2d')
+layer = tf.nn.relu(Z3)
+max_pool3 = tf.nn.max_pool(max_pool3, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+
+nn = create_conv2d(nn, 512, strides=[3,3], w_name='W4')
+nn = tf.nn.relu(nn)
+nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+
+nn = create_conv2d(nn, 512, strides=[3,3], w_name='W5')
+nn = tf.nn.relu(nn)
+layer = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+tf.nn.dropout(layer, keep_prob=keep_prob)
+
+#layer = flatten(layer)
+layer = tf.contrib.layers.flatten(layer)
+#layer = fully_conn(layer, 400)
+layer = tf.contrib.layers.fully_connected(layer, 2000)
+layer = tf.nn.dropout(layer, keep_prob)
+layer = tf.contrib.layers.fully_connected(layer, 1000)
+layer = tf.nn.dropout(layer, keep_prob)
+
+logits = tf.contrib.layers.fully_connected(layer, 3, activation_fn=None)
 logits = tf.identity(logits, name='logits')
 
 # Loss and Optimizer

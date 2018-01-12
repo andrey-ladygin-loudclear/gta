@@ -50,6 +50,8 @@ sess = tf.Session(config=session_conf)
 saver.restore(sess, "weights/gta_one_road")
 
 print(sum(Y_train))
+print(tf.all_variables())
+
 
 
 def predict(image):

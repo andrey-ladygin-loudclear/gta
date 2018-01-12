@@ -16,8 +16,11 @@ import matplotlib.pyplot as plt
 #
 # raise ValueError
 
-img_dir = os.listdir('imgs')
-lab_dir = os.listdir('labels')
+images_dir = '/home/srivoknovskiy/deepnets/data/imgs'
+labels_dir = '/home/srivoknovskiy/deepnets/data/labels'
+
+img_dir = os.listdir(images_dir)
+lab_dir = os.listdir(labels_dir)
 
 images = []
 labels = []
@@ -65,14 +68,14 @@ def one_hot_encode(x, m):
 #     b[np.arange(n), x] = 1
 #     return b
 
-print('Process Images')
+print('Processing Images')
 for dir in img_dir:
-    for image in os.listdir('imgs/' + dir):
-        images.append(preprocess_image('imgs/' + dir + '/' + image))
+    for image in os.listdir(os.path.join(images_dir, dir)):
+        images.append(preprocess_image(os.path.join(images_dir, dir, image)))
 
-print("Process Labels")
+print("Processing Labels")
 for np_lables in lab_dir:
-    numpy_data = np.load('labels/' + np_lables)
+    numpy_data = np.load(os.path.join(labels_dir, np_lables))
     for data in numpy_data:
         labels.append(data)
 
@@ -90,8 +93,8 @@ print('labels sum: ', sum(labels))
 
 images, labels = filter_data(images, labels)
 
-print('save images: ', images.shape)
-print('save labels: ', labels.shape)
+print('save filtered images: ', images.shape)
+print('save filtered labels: ', labels.shape)
 
 np.save('data/features', images)
 np.save('data/labels', labels)

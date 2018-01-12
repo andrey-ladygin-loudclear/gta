@@ -53,6 +53,7 @@ isFirstCheckCommands = True
 def check_commands():
     global start, isFirstCheckCommands, X_train, Y_train
     pressed_keys = key_check()
+    print('Try to check count of pressed keys !!!!!!!!!!!!!!')
 
     if isFirstCheckCommands:
         isFirstCheckCommands = False
