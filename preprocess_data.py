@@ -91,7 +91,7 @@ labels = labels[s]
 
 print('labels sum: ', sum(labels))
 
-images, labels = filter_data(images, labels)
+#images, labels = filter_data(images, labels)
 
 print('save filtered images: ', images.shape)
 print('save filtered labels: ', labels.shape)

@@ -54,7 +54,7 @@ def conv_net(x, keep_prob):
     layer = tf.contrib.layers.fully_connected(layer, 1000)
     layer = tf.nn.dropout(layer, keep_prob)
 
-    res = tf.contrib.layers.fully_connected(layer, 3, activation_fn=None)
+    res = tf.contrib.layers.fully_connected(layer, 4, activation_fn=None)
 
     return res
 

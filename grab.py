@@ -9,7 +9,7 @@ import os
 import pyautogui
 import zlib
 from PIL import ImageGrab
-from getkeys import key_check
+from getkeys import key_check, get_pressed_keys, clear_pressed_keys
 from player import GTAPlayer
 import datetime
 import pickle
@@ -20,7 +20,9 @@ start = False
 X_train = []
 Y_train = []
 
-last_saved_image = (max([int(folder) for folder in os.listdir('imgs')]) + 1) * 1000
+last_img = [int(folder) for folder in os.listdir('imgs')]
+if len(last_img) == 0: last_img = [0]
+last_saved_image = (max(last_img) + 1) * 1000
 
 def grab():
     global start, last_saved_image
@@ -53,7 +55,6 @@ isFirstCheckCommands = True
 def check_commands():
     global start, isFirstCheckCommands, X_train, Y_train
     pressed_keys = key_check()
-    print('Try to check count of pressed keys !!!!!!!!!!!!!!')
 
     if isFirstCheckCommands:
         isFirstCheckCommands = False
@@ -73,13 +74,18 @@ def check_commands():
 
 def addToData(image):
     global Y_train, last_saved_image
-    y = [0, 0, 0, 0]
-    pressed_keys = key_check()
+    pressed_keys = get_pressed_keys()
+    clear_pressed_keys()
 
-    if 'A' in pressed_keys: y[0] = 1
-    if 'W' in pressed_keys: y[1] = 1
-    if 'D' in pressed_keys: y[2] = 1
-    if 'S' in pressed_keys: y[3] = 1
+    y = [pressed_keys.count('A'),
+        pressed_keys.count('W'),
+        pressed_keys.count('D'),
+        pressed_keys.count('S')]
+
+    # if 'A' in pressed_keys: y[0] = 1
+    # if 'W' in pressed_keys: y[1] = 1
+    # if 'D' in pressed_keys: y[2] = 1
+    # if 'S' in pressed_keys: y[3] = 1
 
     #X_train.append(image)
     Y_train.append(y)
@@ -95,6 +101,7 @@ def addToData(image):
         print('SAVE', len(Y_train), last_saved_image)
         saveTrainingData()
 
+    #print(y)
     last_saved_image += 1
 
 def getFileName(date, iteration):
@@ -105,7 +112,7 @@ def saveTrainingData():
     name = str(last_saved_image // 1000) + "-labels-" + str(len(Y_train))
 
     if len(Y_train) > 0:
-        print('SaveTrainingData: ', len(Y_train))
+        print('SaveTrainingData: ', len(Y_train), 'Total:', last_saved_image)
         np.save('labels/'+name, Y_train)
         Y_train = []
     return
