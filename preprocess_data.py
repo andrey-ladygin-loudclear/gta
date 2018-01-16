@@ -30,8 +30,8 @@ def preprocess_image(image_path):
     image = Image.fromarray(real_image, 'RGB')
     #image = image.resize((252,189))
     image = image.resize((120,90))
-    plt.imshow(image)
-    plt.show()
+    # plt.imshow(image)
+    # plt.show()
     real_image = np.array(image)
     return real_image
 
@@ -43,19 +43,26 @@ def filter_data(images, labels):
     ny = []
 
     print('Filter data')
-    print('old: ', images.shape)
-    print('old: ', labels.shape)
 
     for x, y in zip(images, labels):
-        if y[0] != 0:
+        diff = y[0] - y[2]
+        if diff:
             nx.append(x)
-            ny.append([1, 0, 0])
-        if y[2] != 0:
+            ny.append([diff])
+
+    return np.array(nx), np.array(ny)
+
+def straight_road_filter(images, labels):
+    nx = []
+    ny = []
+
+    print('Straight Road Filter data')
+
+    for x, y in zip(images, labels):
+        diff = y[0] - y[2]
+        if not diff:
             nx.append(x)
-            ny.append([0, 1, 0])
-        if y[0] == 0 and y[2] == 0:
-            nx.append(x)
-            ny.append([0, 0, 1])
+            ny.append([y[1]])
 
     return np.array(nx), np.array(ny)
 
@@ -82,25 +89,28 @@ for np_lables in lab_dir:
         labels.append(data)
 
 
+def save_data(x, y, shuffle=True, x_name='features', y_name='labels'):
+    if shuffle:
+        s = np.arange(x.shape[0])
+        np.random.shuffle(s)
+        x = x[s]
+        y = y[s]
+
+    print('save: ', x_name, x.shape)
+    print('save: ', y_name, y.shape)
+
+    np.save(os.path.join('data', x_name), x)
+    np.save(os.path.join('data', y_name), y)
+
+
 images = np.array(images)
 labels = np.array(labels)
 
-print(labels)
+print('old: ', images.shape)
+print('old: ', labels.shape)
 
-raise EOFError
+x, y = filter_data(images, labels)
+save_data(x, y, x_name='features', y_name='labels')
 
-s = np.arange(images.shape[0])
-np.random.shuffle(s)
-
-images = images[s]
-labels = labels[s]
-
-print('labels sum: ', sum(labels))
-
-#images, labels = filter_data(images, labels)
-
-print('save filtered images: ', images.shape)
-print('save filtered labels: ', labels.shape)
-
-np.save('data/features', images)
-np.save('data/labels', labels)
+x, y = straight_road_filter(images, labels)
+save_data(x, y, x_name='straights_road_features', y_name='straights_road_labels')
