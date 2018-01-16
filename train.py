@@ -3,6 +3,13 @@ import numpy as np
 import network.cnn_network as cnn
 from network.utils import batch_features_labels
 
+l = np.linalg.norm(
+    np.array([1,2,3,4,5,6]) -
+    np.array([2,5,3,4,5,6])
+)
+print(l)
+raise EOFError
+
 X_train = np.load('data/features.npy')
 Y_train = np.load('data/labels.npy')
 
