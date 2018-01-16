@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 #
 # raise ValueError
 
-images_dir = '/home/srivoknovskiy/deepnets/data/imgs'
-labels_dir = '/home/srivoknovskiy/deepnets/data/labels'
+images_dir = 'imgs'
+labels_dir = 'labels'
 
 img_dir = os.listdir(images_dir)
 lab_dir = os.listdir(labels_dir)
@@ -28,9 +28,10 @@ labels = []
 def preprocess_image(image_path):
     real_image = ndimage.imread(image_path)
     image = Image.fromarray(real_image, 'RGB')
-    image = image.resize((252,189))
-    # plt.imshow(image)
-    # plt.show()
+    #image = image.resize((252,189))
+    image = image.resize((120,90))
+    plt.imshow(image)
+    plt.show()
     real_image = np.array(image)
     return real_image
 
@@ -41,6 +42,7 @@ def filter_data(images, labels):
     nx = []
     ny = []
 
+    print('Filter data')
     print('old: ', images.shape)
     print('old: ', labels.shape)
 
@@ -82,6 +84,10 @@ for np_lables in lab_dir:
 
 images = np.array(images)
 labels = np.array(labels)
+
+print(labels)
+
+raise EOFError
 
 s = np.arange(images.shape[0])
 np.random.shuffle(s)
