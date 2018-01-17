@@ -1,3 +1,4 @@
+import cv2
 import tensorflow as tf
 import numpy as np
 import network.cnn_network as cnn
@@ -21,52 +22,28 @@ keep_probability = 0.5
 
 tf.reset_default_graph()
 
-# Inputs
-x = cnn.neural_net_image_input((imw, imh, 3))
-y = cnn.neural_net_label_input(n_classes)
-keep_prob = cnn.neural_net_keep_prob_input()
 
-# Model
-nn = cnn.create_conv2d(x, 64, strides=[4, 4], w_name='W1')
-nn = tf.nn.relu(nn, name='W1_activated')
-nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
+anchor = cnn.neural_net_image_input((imw, imh, 3))
+positive = cnn.neural_net_image_input((imw, imh, 3))
+negative = cnn.neural_net_image_input((imw, imh, 3))
 
-nn = cnn.create_conv2d(nn, 128, strides=[3, 3], w_name='W2')
-nn = tf.nn.relu(nn, name='W2_activated')
-nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
-nn = cnn.create_conv2d(nn, 128, strides=[2, 2], w_name='W3')
-nn = tf.nn.relu(nn, name='W3_activated')
-nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
-
-tf.nn.dropout(nn, keep_prob=keep_prob)
-
-layer = tf.contrib.layers.flatten(nn)
-layer = tf.contrib.layers.fully_connected(layer, 500)
-layer = tf.nn.dropout(layer, keep_prob)
-layer = tf.contrib.layers.fully_connected(layer, 500)
-layer = tf.nn.dropout(layer, keep_prob)
-
-logits = tf.contrib.layers.fully_connected(layer, n_classes, activation_fn=None)
-
-# Name logits Tensor, so that is can be loaded from disk after training
-logits = tf.identity(logits, name='logits')
 
 # Loss and Optimizer
 # cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y)
 # cost = tf.reduce_mean(cross_entropy)
 # loss = triplet_loss(y_true, y_pred)
-loss = triplet_loss(y, logits)
+loss = triplet_loss(anchor, positive, negative)
 optimizer = tf.train.AdamOptimizer().minimize(loss)
 
 # Accuracy
 #correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(y, 1))
 # correct_pred = tf.equal(logits, y)
-correct_pred = abs(logits - y)
-accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
+#correct_pred = abs(logits - y)
+#accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
 
-encoding = img_to_encoding(image_path, model)
-dist = np.linalg.norm(database[identity] - encoding)
+#encoding = img_to_encoding(image_path, model)
+#dist = np.linalg.norm(database[identity] - encoding)
 
 
 def img_to_encoding(image_path, model):
