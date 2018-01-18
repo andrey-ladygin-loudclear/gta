@@ -2,7 +2,7 @@ import tensorflow as tf
 
 net_params = {}
 
-def neural_net_image_input(image_shape):
+def neural_net_image_input(image_shape, name='x'):
     """
     Return a Tensor for a batch of image input
     : image_shape: Shape of the images
@@ -12,7 +12,7 @@ def neural_net_image_input(image_shape):
     n_input_1 = image_shape[0]
     n_input_2 = image_shape[1]
     n_input_3 = image_shape[2]
-    return tf.placeholder(tf.float32,[None, n_input_1, n_input_2, n_input_3], name='x')
+    return tf.placeholder(tf.float32,[None, n_input_1, n_input_2, n_input_3], name=name)
 
 
 def neural_net_label_input(n_classes):
