@@ -5,7 +5,7 @@ from scipy import ndimage
 import matplotlib.pyplot as plt
 
 
-img_dir = ['/home/srivoknovskiy/deepnets/non-road/19', '/home/srivoknovskiy/deepnets/non-road/20']
+img_dir = ['D:/datasets/non-road/19', 'D:/datasets/non-road/20']
 
 images = []
 

@@ -3,7 +3,7 @@ import cv2
 import time
 from PIL import ImageGrab
 from getkeys import key_check
-from load_network_weights import predict
+from prediction_road_turn import predict
 from player import GTAPlayer
 
 player = GTAPlayer()
@@ -21,7 +21,7 @@ def grab():
 
         if(start):
             screen = ImageGrab.grab(bbox=(0, 40, 800, 640))
-            screen = screen.resize((252,189))
+            screen = screen.resize((120,90))
             screen = np.array(screen)
             image = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
             cv2.imshow('window', image)
@@ -58,21 +58,25 @@ def check_commands():
 
 
 def get_prediction(image):
-    # image = image.resize((252,189))
-    #print(image.shape)
     prediction = predict([image])
+    turnLeft = True
 
-    #player.forward()
-    #time.sleep(0.5)
-    #player.releaseForward()
+    if prediction[0] < 0:
+        turnLeft = False
 
-    if prediction[0]:
+
+
+    player.forward()
+    time.sleep(0.3)
+    player.releaseForward()
+
+    if turnLeft:
         player.left()
 
-    if prediction[1]:
+    if not turnLeft:
         player.right()
 
-    time.sleep(0.1)
+    time.sleep(abs(prediction[0]) / 250)
     player.releaseLeft()
     player.releaseRight()
 

@@ -115,6 +115,14 @@ def batch_features_labels(features, labels, batch_size):
         end = min(start + batch_size, len(features))
         yield features[start:end], labels[start:end]
 
+def batch_features_labels_triple(features1, features2, features3, batch_size):
+    """
+    Split features and labels into batches
+    """
+    for start in range(0, len(features1), batch_size):
+        end = min(start + batch_size, len(features1))
+        yield features1[start:end], features2[start:end], features3[start:end]
+
 
 
 def load_preprocess_training_batch(batch_id, batch_size):

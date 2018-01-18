@@ -18,9 +18,9 @@ print(Y_train.shape)
 
 X_train, Y_train = ff_filter(X_train, Y_train)
 
-
 print(X_train.shape)
 print(Y_train.shape)
+
 # raise EOFError
 
 # import matplotlib.pyplot as plt
@@ -40,7 +40,7 @@ config.gpu_options.allocator_type = 'BFC'
 imw = 90
 imh = 120
 n_classes = 1
-epochs = 100
+epochs = 15
 batch_size = 64
 keep_probability = 0.5
 
@@ -85,8 +85,11 @@ logits = tf.identity(logits, name='logits')
 # Loss and Optimizer
 # cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y)
 # cost = tf.reduce_mean(cross_entropy)
-sq = tf.square(y-logits)
-cost = tf.reduce_mean(sq)
+# sq = tf.square(y-logits)
+# cost = tf.reduce_mean(sq)
+
+#cost = tf.reduce_sum(tf.pow(logits-y, 2))/(2*n_samples)
+cost = tf.reduce_mean(tf.pow(logits-y, 2))
 optimizer = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cost)
 
 # Accuracy
@@ -153,5 +156,5 @@ with tf.Session() as sess:
     #print(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='my_scope'))
 
     # Save Model
-    saver = tf.train.Saver()
-    save_path = saver.save(sess, save_model_path)
+    # saver = tf.train.Saver()
+    # save_path = saver.save(sess, save_model_path)

@@ -3,10 +3,10 @@ import network.cnn_network as cnn
 
 n = 1
 
-def make_logits(tensor):
+def make_logits(tensor, keep_prob):
     global n
     # Inputs
-    keep_prob = cnn.neural_net_keep_prob_input()
+    # keep_prob = cnn.neural_net_keep_prob_input()
 
     # Model
     nn = cnn.create_conv2d(tensor, 64, strides=[4, 4], w_name='W1'+str(n))

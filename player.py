@@ -1,10 +1,9 @@
+from threading import Thread
+
 from directkeys import ReleaseKey, PressKey, W, A, S, D
 
 
-class GTAPlayer:
-    def __init__(self):
-        pass
-
+class GTAPlayer():#Thread
     def left(self):
         PressKey(A)
 
