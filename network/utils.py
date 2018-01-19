@@ -115,13 +115,21 @@ def batch_features_labels(features, labels, batch_size):
         end = min(start + batch_size, len(features))
         yield features[start:end], labels[start:end]
 
+import random
 def batch_features_labels_triple(features1, features2, features3, batch_size):
     """
     Split features and labels into batches
     """
+    random_features3 = []
+    random_features2 = []
+
+    for i in range(batch_size):
+        random_features3.append(random.choice(features3))
+        random_features2.append(random.choice(features2))
+
     for start in range(0, len(features1), batch_size):
         end = min(start + batch_size, len(features1))
-        yield features1[start:end], features2[start:end], features3[start:end]
+        yield features1[start:end], np.array(random_features2), np.array(random_features3)
 
 
 
@@ -252,10 +260,17 @@ def triplet_loss(anchor, positive, negative, alpha = 0.2):
     pos_dist = tf.reduce_sum(tf.square(tf.subtract(anchor, positive)))
     neg_dist = tf.reduce_sum(tf.square(tf.subtract(anchor, negative)))
     basic_loss = tf.add(tf.subtract(pos_dist, neg_dist), alpha)
+    # loss = basic_loss
     loss = tf.maximum(basic_loss, 0.0)
     return loss
 
+from PIL import Image
 
+
+def show_image(im):
+    image = Image.fromarray(im, 'RGB')
+    plt.imshow(image)
+    plt.show()
 
 # def triplet_loss(y_true, y_pred, alpha = 0.2):
 #     """
