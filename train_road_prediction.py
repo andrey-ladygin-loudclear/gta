@@ -17,23 +17,36 @@ print('road_train', road_train.shape)
 print('non_road_train', non_road_train.shape)
 print('Make the same size')
 
+
+check_X = []
+for item in features[3000:5000]: check_X.append(item)
+for item in non_road_train: check_X.append(item)
+
+check_X = np.array(check_X)
+
+s = np.arange(check_X.shape[0])
+np.random.shuffle(s)
+check_X = check_X[s]
+# print('check_X', check_X.shape)
+# show_image(check_X[1])
+# raise EOFError
+
 X_dev = []
 Y_dev = []
 for item in features[4000:5000]:
     X_dev.append(item)
     Y_dev.append([1, 0])
-for item in non_road_train[:500]:
+for item in non_road_train[:1000]:
     X_dev.append(item)
     Y_dev.append([0, 1])
 X_dev = np.array(X_dev)
 Y_dev = np.array(Y_dev)
 
-
-for item in features[:4000]:
+for item in features[:2000]:
     X_train.append(item)
     Y_train.append([1, 0])
 
-for item in road_train[:2000]:
+for item in road_train[:4000]:
     X_train.append(item)
     Y_train.append([1, 0])
 
@@ -68,7 +81,7 @@ config.gpu_options.allocator_type = 'BFC'
 imw = 90
 imh = 120
 n_classes = 2
-epochs = 200
+epochs = 7
 batch_size = 256
 keep_probability = 0.5
 
@@ -84,8 +97,8 @@ logits = tf.identity(logits, name='logits')
 
 # Loss and Optimizer
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y))
-#optimizer = tf.train.AdamOptimizer().minimize(cost)
-optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(cost)
+optimizer = tf.train.AdamOptimizer().minimize(cost)
+# optimizer = tf.train.GradientDescentOptimizer(3).minimize(cost)
 
 # Accuracy
 p = logits[0][0]
@@ -113,10 +126,13 @@ with tf.Session() as sess:
             sess.run(optimizer, feed_dict={x: x_batch / 255, y: y_batch, keep_prob: keep_probability})
 
         for x_batch, y_batch in batch_features_labels(X_train, Y_train, batch_size):
-            c, a = sess.run([cost, accuracy], feed_dict={x: x_batch / 255, y: y_batch, keep_prob: 1.0})
+            c, a, pred = sess.run([cost, accuracy, p], feed_dict={x: x_batch / 255, y: y_batch, keep_prob: 1.0})
             batches_count += 1
             cost_sum += c
             accuracy_sum += a
+
+            # for i in range(len(pred)):
+            #     print('Check', pred[i], y_batch[i])
 
         for x_batch, y_batch in batch_features_labels(X_dev, Y_dev, batch_size):
             c, a = sess.run([cost, accuracy], feed_dict={x: x_batch / 255, y: y_batch, keep_prob: 1.0})
@@ -128,10 +144,16 @@ with tf.Session() as sess:
         print('Cost: ', (cost_sum / batches_count), 'Accuracy: ', (accuracy_sum / batches_count), 'Dev cost: ', (dev_cost_sum / dev_batches_count), 'Dev accuracy: ', (dev_accuracy_sum / dev_batches_count))
         # print('Cost: ', (cost_sum / batches_count), 'Dev cost: ', (dev_cost_sum / dev_batches_count))
 
-        if epoch + 1 >= 150 and (cost_sum / batches_count) < 1:
+        if epoch + 1 >= 1000 and (cost_sum / batches_count) < 1:
             break
 
-    # Save Model
+    # for i in check_X:
+    #     a = sess.run(logits, feed_dict={x: [i / 255], keep_prob: 1.0})
+    #     print(a)
+    #     show_image(i)
+
+
+        # Save Model
     print('Saving model as', save_model_path)
     saver = tf.train.Saver()
     save_path = saver.save(sess, save_model_path)

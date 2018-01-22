@@ -12,51 +12,6 @@ import network.cnn_network as cnn
 from network.utils import batch_features_labels, triplet_loss, batch_features_labels_triple, show_image
 from train_road_helper import make_logits, make_simple_logits
 
-features = np.load('data/features.npy')
-road_train = np.load('data/straights_road_features.npy')
-non_road_train = np.load('data/non_road_features2.npy')
-
-X_train = []
-Y_train = []
-
-print('features', features.shape)
-print('road_train', road_train.shape)
-print('non_road_train', non_road_train.shape)
-print('Make the same size')
-
-for item in features:
-    X_train.append(item)
-    Y_train.append([1, 0])
-
-for item in road_train:
-    X_train.append(item)
-    Y_train.append([1, 0])
-
-for item in non_road_train:
-    X_train.append(item)
-    Y_train.append([0, 1])
-
-
-
-X_train = np.array(X_train)
-Y_train = np.array(Y_train)
-
-s = np.arange(X_train.shape[0])
-np.random.shuffle(s)
-Total_X = X_train[s]
-Total_Y = Y_train[s]
-
-X_train = Total_X[:20000]
-Y_train = Total_Y[:20000]
-X_dev = Total_X[20000:]
-Y_dev = Total_Y[20000:]
-
-#Total 23000
-print('X_train', X_train.shape)
-print('Y_train', Y_train.shape)
-print('X_dev', X_dev.shape)
-print('Y_dev', Y_dev.shape)
-
 config = tf.ConfigProto()
 config.gpu_options.allocator_type = 'BFC'
 
@@ -95,11 +50,7 @@ saver = tf.train.Saver()
 sess = tf.Session(config=session_conf)
 saver.restore(sess, save_model_path)
 
-def predict(image):
+def predict_if_it_is_road(image):
     prediction = sess.run(logits, {x: image, keep_prob: 1.0})
     print(prediction[0][0][0] > 0.5)
-    return prediction[0]
-
-for i in range(20):
-    predict([X_dev[i+40] / 255])
-    show_image(X_dev[i])
+    return prediction[0][0][0] > 0.5
