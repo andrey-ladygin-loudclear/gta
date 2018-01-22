@@ -50,6 +50,7 @@ def grab():
                 break
 
             last_time = time.time()
+            #time.sleep(0.3)
 
 isFirstCheckCommands = True
 def check_commands():

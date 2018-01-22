@@ -61,13 +61,14 @@ def get_prediction(image):
     prediction = predict([image])
     turnLeft = True
 
+    # if abs(prediction[0]) < 4:
+    #     return
+
     if prediction[0] < 0:
         turnLeft = False
 
-
-
     player.forward()
-    time.sleep(0.3)
+    time.sleep(0.1)
     player.releaseForward()
 
     if turnLeft:
@@ -76,8 +77,15 @@ def get_prediction(image):
     if not turnLeft:
         player.right()
 
-    time.sleep(abs(prediction[0]) / 250)
-    player.releaseLeft()
-    player.releaseRight()
+    time.sleep(abs(prediction[0]) / 100)
+
+    if turnLeft:
+        player.releaseLeft()
+
+    if not turnLeft:
+        player.releaseRight()
+
+    # player.releaseLeft()
+    # player.releaseRight()
 
 grab()

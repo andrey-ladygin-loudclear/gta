@@ -16,10 +16,10 @@ Y_train = np.load('data/labels.npy')
 print(X_train.shape)
 print(Y_train.shape)
 
-X_train, Y_train = ff_filter(X_train, Y_train)
-
-print(X_train.shape)
-print(Y_train.shape)
+# X_train, Y_train = ff_filter(X_train, Y_train)
+#
+# print(X_train.shape)
+# print(Y_train.shape)
 
 # raise EOFError
 
@@ -40,8 +40,8 @@ config.gpu_options.allocator_type = 'BFC'
 imw = 90
 imh = 120
 n_classes = 1
-epochs = 15
-batch_size = 64
+epochs = 200
+batch_size = 32
 keep_probability = 0.5
 
 tf.reset_default_graph()
@@ -110,18 +110,21 @@ accuracy = tf.reduce_mean(correct_pred, 0)
 
 def print_stats(session, feature_batch, label_batch, cost, accuracy):
     sum = 0
+    diff = 0
     count = len(X_train) // batch_size
 
     for i in range(count):
-        sum += session.run(cost, feed_dict={x: X_train[i:i+batch_size] / 255, y: Y_train[i:i+batch_size], keep_prob: 1.0})
+        c, l = session.run([cost, logits], feed_dict={x: X_train[i:i+batch_size] / 255, y: Y_train[i:i+batch_size], keep_prob: 1.0})
+        diff += np.sum(np.abs(Y_train[i:i+batch_size] - l))
+        sum += c
 
     #c, s, labels, l = session.run([cost, sq, y, logits], feed_dict={x: feature_batch, y: label_batch, keep_prob: 1.0})
 
-    print('Cost', (sum / count))
+    print('Cost', (sum / count), 'Diff', (diff / count))
     # for i in range(len(l)):
     #     print('Equasion: ', labels[i], l[i], s[i])
 
-    return
+    return diff / count
     diff = 0
     sum = 0
     count = len(X_train) // batch_size
@@ -139,7 +142,7 @@ def print_stats(session, feature_batch, label_batch, cost, accuracy):
     print('Cost = {0} - Validation Accuracy = {1}, Total Diff = {2}'.format(cost, sum / count, diff))
 
 
-save_model_path = 'weights/gta1'
+save_model_path = 'weights/gta2'
 print('Training...')
 
 with tf.Session() as sess:
@@ -151,10 +154,13 @@ with tf.Session() as sess:
         for batch_features, batch_labels in batch_features_labels(X_train, Y_train, batch_size):
             sess.run(optimizer, feed_dict={x: batch_features / 255, y: batch_labels, keep_prob: keep_probability})
         print('Epoch {:>2}, Last Batch: size {:>2}, '.format(epoch + 1, len(batch_labels)), end='')
-        print_stats(sess, batch_features / 255, batch_labels, cost, accuracy)
+        diff = print_stats(sess, batch_features / 255, batch_labels, cost, accuracy)
+
+        if diff < 10:
+            break
 
     #print(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='my_scope'))
 
     # Save Model
-    # saver = tf.train.Saver()
-    # save_path = saver.save(sess, save_model_path)
+    saver = tf.train.Saver()
+    save_path = saver.save(sess, save_model_path)

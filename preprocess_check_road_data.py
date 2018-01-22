@@ -5,7 +5,7 @@ from scipy import ndimage
 import matplotlib.pyplot as plt
 
 
-img_dir = ['D:/datasets/non-road/19', 'D:/datasets/non-road/20']
+img_dir = ['D:/datasets/non-road/1', 'D:/datasets/non-road/2', 'D:/datasets/non-road/3', 'D:/datasets/non-road/19', 'D:/datasets/non-road/20']
 
 images = []
 
@@ -36,4 +36,4 @@ images = np.array(images)
 
 print('old: ', images.shape)
 
-save_data(images,  x_name='non_road_features')
+save_data(images,  x_name='non_road_features2')
