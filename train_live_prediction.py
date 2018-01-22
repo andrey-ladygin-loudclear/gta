@@ -75,7 +75,7 @@ with tf.Session() as sess:
             sess.run(optimizer, feed_dict={x: x_batch / 255,y: y_batch,keep_prob: keep_probability})
 
         for x_batch, y_batch in batch_features_labels(X_train, Y_train, batch_size):
-            cost = sess.run(loss, feed_dict={x: x_batch / 255,y: y_batch,keep_prob: keep_probability})
+            cost = sess.run(loss, feed_dict={x: x_batch / 255,y: y_batch,keep_prob: 1.0})
             batches_count +=1
             cost_sum += cost
 

@@ -17,11 +17,23 @@ print('road_train', road_train.shape)
 print('non_road_train', non_road_train.shape)
 print('Make the same size')
 
-for item in features:
+X_dev = []
+Y_dev = []
+for item in features[4000:5000]:
+    X_dev.append(item)
+    Y_dev.append([1, 0])
+for item in non_road_train[:500]:
+    X_dev.append(item)
+    Y_dev.append([0, 1])
+X_dev = np.array(X_dev)
+Y_dev = np.array(Y_dev)
+
+
+for item in features[:4000]:
     X_train.append(item)
     Y_train.append([1, 0])
 
-for item in road_train:
+for item in road_train[:2000]:
     X_train.append(item)
     Y_train.append([1, 0])
 
@@ -30,18 +42,25 @@ for item in non_road_train:
     Y_train.append([0, 1])
 
 
-
 X_train = np.array(X_train)
 Y_train = np.array(Y_train)
 
 s = np.arange(X_train.shape[0])
 np.random.shuffle(s)
-X_train = X_train[s]
-Y_train = Y_train[s]
+Total_X = X_train[s]
+Total_Y = Y_train[s]
 
+print('Total features:', len(X_train))
 
-print(X_train.shape)
-print(Y_train.shape)
+X_train = Total_X
+Y_train = Total_Y
+# X_dev = X_train[18000:19000]
+# Y_dev = Y_train[18000:19000]
+
+print('X_train', X_train.shape)
+print('Y_train', Y_train.shape, sum(Y_train))
+print('X_dev', X_dev.shape)
+print('Y_dev', Y_dev.shape)
 
 config = tf.ConfigProto()
 config.gpu_options.allocator_type = 'BFC'
@@ -50,7 +69,7 @@ imw = 90
 imh = 120
 n_classes = 2
 epochs = 200
-batch_size = 10
+batch_size = 256
 keep_probability = 0.5
 
 tf.reset_default_graph()
@@ -60,16 +79,19 @@ y = cnn.neural_net_label_input(n_classes)
 keep_prob = cnn.neural_net_keep_prob_input()
 
 logits = make_simple_logits(x, keep_prob)
+# Name logits Tensor, so that is can be loaded from disk after training
 logits = tf.identity(logits, name='logits')
 
-sigmoid = tf.nn.sigmoid(logits)
-#cross_entropy = -tf.reduce_sum(y * tf.log(sigmoid), reduction_indices=1)
-#loss = tf.reduce_mean(cross_entropy)
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=sigmoid, labels=y)
-# cross_entropy = tf.reduce_mean(-tf.reduce_sum(sigmoid * tf.log(y), reduction_indices=[1]))
-loss = tf.reduce_mean(cross_entropy)
+# Loss and Optimizer
+cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y))
+#optimizer = tf.train.AdamOptimizer().minimize(cost)
+optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(cost)
 
-optimizer = tf.train.AdamOptimizer().minimize(loss)
+# Accuracy
+p = logits[0][0]
+correct_pred = tf.equal(tf.argmax(p, 1), tf.argmax(y, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32), name='accuracy')
+
 
 save_model_path = 'weights/gta_simple_road_prediction_sigmoid_4'
 print('Training...')
@@ -81,22 +103,35 @@ with tf.Session() as sess:
     # Training cycle
     for epoch in range(epochs):
         batches_count = 0
+        dev_batches_count = 0
         cost_sum = 0
+        accuracy_sum = 0
+        dev_cost_sum = 0
+        dev_accuracy_sum = 0
 
         for x_batch, y_batch in batch_features_labels(X_train, Y_train, batch_size):
             sess.run(optimizer, feed_dict={x: x_batch / 255, y: y_batch, keep_prob: keep_probability})
 
         for x_batch, y_batch in batch_features_labels(X_train, Y_train, batch_size):
-            cost = sess.run(loss, feed_dict={x: x_batch / 255, y: y_batch, keep_prob: keep_probability})
+            c, a = sess.run([cost, accuracy], feed_dict={x: x_batch / 255, y: y_batch, keep_prob: 1.0})
             batches_count += 1
-            cost_sum += cost
+            cost_sum += c
+            accuracy_sum += a
+
+        for x_batch, y_batch in batch_features_labels(X_dev, Y_dev, batch_size):
+            c, a = sess.run([cost, accuracy], feed_dict={x: x_batch / 255, y: y_batch, keep_prob: 1.0})
+            dev_batches_count += 1
+            dev_cost_sum += c
+            dev_accuracy_sum += a
 
         print('Epoch {:>2}, '.format(epoch + 1), end='')
-        print('Cost: ', (cost_sum / batches_count))
+        print('Cost: ', (cost_sum / batches_count), 'Accuracy: ', (accuracy_sum / batches_count), 'Dev cost: ', (dev_cost_sum / dev_batches_count), 'Dev accuracy: ', (dev_accuracy_sum / dev_batches_count))
+        # print('Cost: ', (cost_sum / batches_count), 'Dev cost: ', (dev_cost_sum / dev_batches_count))
 
-        if epoch > 16 and cost_sum / batches_count < 10:
+        if epoch + 1 >= 150 and (cost_sum / batches_count) < 1:
             break
 
     # Save Model
+    print('Saving model as', save_model_path)
     saver = tf.train.Saver()
     save_path = saver.save(sess, save_model_path)

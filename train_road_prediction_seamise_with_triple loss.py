@@ -128,18 +128,18 @@ with tf.Session() as sess:
 
     #print(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='my_scope'))
 
-    encodec1 = sess.run(anchor, feed_dict={anchor_image: road / 255})
+    encodec1 = sess.run(anchor, feed_dict={anchor_image: road / 255, keep_prob:1.0})
 
     for i in range(5020, 5025):
         check = np.array([X_train[i]])
-        encodec2 = sess.run(anchor, feed_dict={anchor_image: check / 255})
+        encodec2 = sess.run(anchor, feed_dict={anchor_image: check / 255, keep_prob:1.0})
         dist = np.linalg.norm(encodec1 - encodec2)
         print(dist)
         show_image(X_train[i])
 
     for i in range(1970, 1975):
         check = np.array([Y_train[i]])
-        encodec2 = sess.run(anchor, feed_dict={anchor_image: check / 255})
+        encodec2 = sess.run(anchor, feed_dict={anchor_image: check / 255, keep_prob:1.0})
         dist = np.linalg.norm(encodec1 - encodec2)
         print(dist)
         show_image(Y_train[i])
