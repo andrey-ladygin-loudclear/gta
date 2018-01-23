@@ -115,18 +115,18 @@ def make_logits_for_live_prediction(tensor, keep_prob):
     nn = tf.nn.relu(nn)
     nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
-    nn = cnn.create_conv2d(nn, 512, strides=[2, 2], w_name='W6')
-    nn = tf.nn.relu(nn)
-    nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
-
-    nn = cnn.create_conv2d(nn, 1024, strides=[2, 2], w_name='W7')
-    nn = tf.nn.relu(nn)
-    nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+    # nn = cnn.create_conv2d(nn, 512, strides=[2, 2], w_name='W6')
+    # nn = tf.nn.relu(nn)
+    # nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
+    #
+    # nn = cnn.create_conv2d(nn, 1024, strides=[2, 2], w_name='W7')
+    # nn = tf.nn.relu(nn)
+    # nn = tf.nn.max_pool(nn, ksize=[1,2,2,1], strides=[1,2,2,1], padding = 'SAME')
 
     tf.nn.dropout(nn, keep_prob=keep_prob)
-    layer = tf.contrib.layers.fully_connected(nn, 2048)# activation_fn=tf.nn.relu)
+    layer = tf.contrib.layers.fully_connected(nn, 1024)# activation_fn=tf.nn.relu)
     tf.nn.dropout(layer, keep_prob=keep_prob)
-    layer = tf.contrib.layers.fully_connected(layer, 1024)#, activation_fn=tf.nn.relu)
+    layer = tf.contrib.layers.fully_connected(layer, 512)#, activation_fn=tf.nn.relu)
     tf.nn.dropout(layer, keep_prob=keep_prob)
-    layer = tf.contrib.layers.fully_connected(layer, 2, activation_fn=None)
+    layer = tf.contrib.layers.fully_connected(layer, 1, activation_fn=None)
     return layer

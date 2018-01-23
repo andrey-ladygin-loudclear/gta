@@ -3,8 +3,9 @@ import cv2
 import time
 from PIL import ImageGrab
 from getkeys import key_check
-from prediction_road_turn import predict
 from player import GTAPlayer
+from prediction_for_live_game import live_train, live_prediction
+from prediction_simple_road import predict_if_it_is_road
 
 player = GTAPlayer()
 start = False
@@ -20,6 +21,7 @@ def grab():
         check_commands()
 
         if(start):
+            time.sleep(0.5)
             screen = ImageGrab.grab(bbox=(0, 40, 800, 640))
             screen = screen.resize((120,90))
             screen = np.array(screen)
@@ -58,7 +60,12 @@ def check_commands():
 
 
 def get_prediction(image):
-    prediction = predict([image])
+    live_train([image])
+    prediction = live_prediction([image])
+
+    #print(prediction)
+
+    return
     turnLeft = True
 
     # if abs(prediction[0]) < 4:

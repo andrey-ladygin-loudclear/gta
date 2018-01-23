@@ -25,23 +25,47 @@ keep_prob = cnn.neural_net_keep_prob_input()
 logits = make_logits_for_live_prediction(x, keep_prob)
 logits = tf.identity(logits, name='logits')
 
-if_road = predict_if_it_is_road(x)
-loss = if_road[0]*0 + if_road[1]*10
+# is_road = predict_if_it_is_road(x)
+# is_road = is_road[0]
+
+if y[0] == 1.0:
+    loss = logits
+else:
+    loss = logits + 5000
+
 optimizer = tf.train.AdamOptimizer().minimize(loss)
 
 save_model_path = 'weights/gta_live_prediction'
 
-sess = tf.Session()
+session_conf = tf.ConfigProto(
+    device_count={'CPU' : 1, 'GPU' : 0},
+    allow_soft_placement=True,
+    log_device_placement=False
+)
+sess = tf.Session(config=session_conf)
 sess.run(tf.global_variables_initializer())
 
 
 def live_train(train_x):
-    sess.run(optimizer, feed_dict={x: train_x, keep_prob: keep_probability})
+    train_x = np.array(train_x)
+    y_train = predict_if_it_is_road(train_x)
+    if y_train[0]:
+        y_train = [1.0]
+    else:
+        y_train = [0.0]
+
+    y_train = np.array([y_train])
+
+    print('is road', y_train, y_train.shape, 'train_x', train_x.shape)
+
+    sess.run(optimizer, feed_dict={x: train_x, y: y_train, keep_prob: keep_probability})
     #sess.run(optimizer, feed_dict={x: train_x, y: train_y, keep_prob: keep_probability})
 
 
 def live_prediction(train_x):
-    sess.run(logits, feed_dict={x: train_x, keep_prob: 1.0})
+    l, c = sess.run([logits, loss], feed_dict={x: train_x, keep_prob: 1.0})
+    print('Lost', l, 'Cost', c)
+    return l
 
     # Save Model
     # saver = tf.train.Saver()
